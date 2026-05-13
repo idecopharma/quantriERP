@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Quản Trị Thông Báo — TBKH Control Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+        --bg: #f5f7fb;
+        --panel: #ffffff;
+        --border: #e7eaf0;
+        --text: #1a2233;
+        --text-soft: #5a6478;
+        --text-mute: #98a1b3;
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --live: #ef4444;
+        --live-dark: #dc2626;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+        --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        --shadow-lg: 0 10px 40px rgba(15, 23, 42, 0.1);
+        --radius: 14px;
+        --radius-sm: 8px;
+    }
+
+    body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.5;
+        font-size: 14px;
+    }
+
+    /* ============ TOP BAR ============ */
+    .topbar {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: #fff;
+        padding: 18px 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo {
+        width: 44px; height: 44px;
+        background: linear-gradient(135deg, #ef4444, #f97316);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+    .brand h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+    .brand p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+
+    .status-pill {
+        display: flex; align-items: center; gap: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .status-pill .dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #fbbf24;
+        animation: pulse 1.5s infinite;
+    }
+    .status-pill.online .dot { background: #10b981; }
+    .status-pill.offline .dot { background: #ef4444; animation: none; }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    /* ============ LAYOUT ============ */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 24px;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .grid > .full { grid-column: 1 / -1; }
+
+    @media (max-width: 920px) {
+        .grid { grid-template-columns: 1fr; }
+        .container { padding: 16px; }
+        .topbar { padding: 14px 16px; }
+        .brand h1 { font-size: 15px; }
+        .brand p { display: none; }
+    }
+
+    /* ============ CARD ============ */
+    .card {
+        background: var(--panel);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); }
+
+    .card-header {
+        padding: 18px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #fafbfd 0%, #fff 100%);
+    }
+    .card-title { display: flex; align-items: center; gap: 12px; }
+    .card-title .icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        background: #eff6ff;
+        color: var(--primary);
+    }
+    .card-title h2 {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+    .card-title .subtitle {
+        font-size: 12px;
+        color: var(--text-mute);
+        margin-top: 1px;
+    }
+    .card-body { padding: 22px; }
+
+    /* LIVE card variant */
+    .card-live .card-title .icon {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: var(--live);
+    }
+    .badge-live {
+        background: var(--live);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        letter-spacing: 0.05em;
+        animation: blink 2s infinite;
+    }
+    @keyframes blink {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+        50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
+
+    /* ============ FORM ============ */
+    label.field-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-soft);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="time"],
+    textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 14px;
+        background: #fff;
+        color: var(--text);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    textarea { resize: vertical; min-height: 70px; font-family: inherit; }
+
+    .form-row { margin-bottom: 18px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+    @media (max-width: 600px) {
+        .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .hint {
+        font-size: 11px;
+        color: var(--text-mute);
+        font-weight: 400;
+        margin-left: 6px;
+    }
+
+    /* ============ BUTTONS ============ */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary {
+        background: var(--primary);
+        color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary {
+        background: #f1f5f9;
+        color: var(--text);
+        border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover:not(:disabled) { background: #e2e8f0; }
+    .btn-ghost {
+        background: transparent;
+        color: var(--text-soft);
+    }
+    .btn-ghost:hover { background: #f1f5f9; color: var(--text); }
+    .btn-danger {
+        background: var(--live);
+        color: #fff;
+    }
+    .btn-danger:hover:not(:disabled) { background: var(--live-dark); }
+
+    /* LIVE BIG button */
+    .btn-live-big {
+        width: 100%;
+        padding: 18px 24px;
+        font-size: 16px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: #fff;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        letter-spacing: 0.02em;
+        margin-top: 14px;
+    }
+    .btn-live-big::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .btn-live-big:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+    }
+    .btn-live-big:hover:not(:disabled)::before { opacity: 1; }
+    .btn-live-big:active:not(:disabled) { transform: translateY(0); }
+    .btn-live-big .pulse-ring {
+        width: 12px; height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        position: relative;
+    }
+    .btn-live-big .pulse-ring::before {
+        content: '';
+        position: absolute;
+        inset: -6px;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        animation: ring 1.5s infinite;
+    }
+    @keyframes ring {
+        0% { transform: scale(0.8); opacity: 1; }
+        100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    .live-meta {
+        margin-top: 14px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        color: var(--text-soft);
+        border-left: 3px solid var(--success);
+    }
+    .live-meta strong { color: var(--text); }
+    .live-meta.empty { border-left-color: var(--border); }
+
+    /* ============ DAY PICKER ============ */
+    .days-picker {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        margin-bottom: 22px;
+    }
+    @media (max-width: 600px) {
+        .days-picker { grid-template-columns: repeat(4, 1fr); }
+    }
+    .day-chip {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 10px 4px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.15s;
+        user-select: none;
+    }
+    .day-chip .day-num {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+    }
+    .day-chip .day-short {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-mute);
+        margin-top: 2px;
+        text-transform: none;
+    }
+    .day-chip:hover {
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+    .day-chip.active {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+    .day-chip.active .day-short,
+    .day-chip.active .day-num { color: #fff; }
+
+    /* ============ TIME SLOTS ============ */
+    .section-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .time-slots {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 40px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: var(--radius-sm);
+        border: 1.5px dashed var(--border);
+        margin-bottom: 12px;
+    }
+    .time-slots.empty::before {
+        content: '⚠️ Chưa có khung giờ nào — popup sẽ KHÔNG chạy theo lịch';
+        color: var(--text-mute);
+        font-size: 12px;
+        font-style: italic;
+        margin: auto;
+    }
+    .time-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 999px;
+        padding: 7px 8px 7px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+        animation: chipIn 0.2s ease-out;
+    }
+    @keyframes chipIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .time-chip .remove {
+        background: #fee2e2;
+        color: var(--live);
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: background 0.15s;
+    }
+    .time-chip .remove:hover { background: var(--live); color: #fff; }
+
+    .add-time-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .add-time-row input[type="time"] {
+        flex: 0 0 130px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .presets {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        align-items: center;
+    }
+    .presets-label {
+        font-size: 11px;
+        color: var(--text-mute);
+        font-weight: 600;
+        margin-right: 4px;
+    }
+    .preset-btn {
+        background: #eff6ff;
+        color: var(--primary);
+        border: 1px solid #dbeafe;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .preset-btn:hover { background: var(--primary); color: #fff; }
+
+    /* ============ TOGGLE SWITCH ============ */
+    .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px;
+        background: #f8fafc;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+    }
+    .toggle-row .info {
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .toggle-row .info .desc {
+        font-size: 11px;
+        color: var(--text-mute);
+        font-weight: 400;
+        margin-top: 2px;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: #cbd5e1;
+        border-radius: 999px;
+        transition: 0.2s;
+    }
+    .slider::before {
+        position: absolute;
+        content: "";
+        height: 20px; width: 20px;
+        left: 3px; top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .switch input:checked + .slider { background: var(--success); }
+    .switch input:checked + .slider::before { transform: translateX(22px); }
+
+    /* ============ HISTORY ============ */
+    .history-list {
+        list-style: none;
+        max-height: 360px;
+        overflow-y: auto;
+    }
+    .history-list::-webkit-scrollbar { width: 6px; }
+    .history-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .history-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 6px;
+        background: #f8fafc;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+        animation: chipIn 0.25s ease-out;
+    }
+    .history-item:hover { border-color: var(--border); background: #fff; }
+    .history-item .h-icon {
+        width: 30px; height: 30px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .history-item.live .h-icon { background: #fee2e2; }
+    .history-item.config .h-icon { background: #dbeafe; }
+    .history-item.settings .h-icon { background: #fef3c7; }
+    .history-item .h-content { flex: 1; min-width: 0; }
+    .history-item .h-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .history-item .h-desc { font-size: 12px; color: var(--text-soft); margin-top: 2px; word-break: break-word; }
+    .history-item .h-time {
+        font-size: 11px;
+        color: var(--text-mute);
+        font-family: 'JetBrains Mono', monospace;
+        flex-shrink: 0;
+        margin-top: 4px;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-mute);
+        font-size: 13px;
+    }
+
+    /* ============ TOAST ============ */
+    .toast-wrap {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+    }
+    .toast {
+        background: #fff;
+        border-radius: var(--radius-sm);
+        padding: 12px 16px;
+        box-shadow: var(--shadow-lg);
+        border-left: 4px solid var(--primary);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        min-width: 240px;
+        max-width: 380px;
+        animation: toastIn 0.3s ease-out;
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--live); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast .toast-icon { font-size: 16px; }
+    @keyframes toastIn {
+        from { transform: translateX(120%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    .toast.out { animation: toastOut 0.25s ease-in forwards; }
+    @keyframes toastOut {
+        to { transform: translateX(120%); opacity: 0; }
+    }
+
+    /* ============ MODAL ============ */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        animation: fadeIn 0.2s ease-out;
+    }
+    .modal-backdrop.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box {
+        background: #fff;
+        border-radius: var(--radius);
+        max-width: 440px;
+        width: 100%;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        animation: modalIn 0.2s ease-out;
+    }
+    @keyframes modalIn {
+        from { transform: scale(0.92); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header { padding: 22px 22px 0; }
+    .modal-header h3 {
+        font-size: 17px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .modal-body {
+        padding: 14px 22px 22px;
+        color: var(--text-soft);
+        font-size: 14px;
+    }
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        padding: 16px 22px;
+        background: #f8fafc;
+        border-top: 1px solid var(--border);
+        justify-content: flex-end;
+    }
+
+    /* ============ STATS STRIP ============ */
+    .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+    @media (max-width: 700px) {
+        .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat-card {
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .stat-card .s-icon {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+    }
+    .stat-card .s-info .num {
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 1.1;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-card .s-info .lbl {
+        font-size: 11px;
+        color: var(--text-mute);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-top: 2px;
+    }
+    .s-blue .s-icon  { background: #dbeafe; color: var(--primary); }
+    .s-red  .s-icon  { background: #fee2e2; color: var(--live); }
+    .s-green .s-icon { background: #d1fae5; color: var(--success); }
+    .s-amber .s-icon { background: #fef3c7; color: var(--warning); }
+
+    /* Saved indicator */
+    .save-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--success);
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.3s;
+        margin-left: 8px;
+    }
+    .save-indicator.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="logo">🔔</div>
+        <div>
+            <h1>Admin Quản Trị Thông Báo</h1>
+            <p>TBKH Popup Control Center · v1.0</p>
+        </div>
+    </div>
+    <div class="status-pill" id="connStatus">
+        <span class="dot"></span>
+        <span class="text">Đang kết nối...</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- STATS STRIP -->
+    <div class="stats-strip">
+        <div class="stat-card s-green">
+            <div class="s-icon">📅</div>
+            <div class="s-info">
+                <div class="num" id="statDays">—</div>
+                <div class="lbl">Ngày trong tuần</div>
+            </div>
+        </div>
+        <div class="stat-card s-blue">
+            <div class="s-icon">⏰</div>
+            <div class="s-info">
+                <div class="num" id="statSlots">—</div>
+                <div class="lbl">Khung giờ</div>
+            </div>
+        </div>
+        <div class="stat-card s-amber">
+            <div class="s-icon">⏱️</div>
+            <div class="s-info">
+                <div class="num" id="statTolerance">—</div>
+                <div class="lbl">Phút bù giờ</div>
+            </div>
+        </div>
+        <div class="stat-card s-red">
+            <div class="s-icon">📡</div>
+            <div class="s-info">
+                <div class="num" id="statLive">0</div>
+                <div class="lbl">Lần phát LIVE</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+
+        <!-- ============ LIVE BROADCAST CARD ============ -->
+        <section class="card card-live">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="icon">⚡</div>
+                    <div>
+                        <h2>Phát Popup LIVE</h2>
+                        <div class="subtitle">Tức thì — không cần đợi lịch</div>
+                    </div>
+                </div>
+                <span class="badge-live">REAL-TIME</span>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <label class="field-label">Ghi chú phát sóng (tuỳ chọn)</label>
+                    <input type="text" id="liveNote" placeholder="VD: Thông báo khẩn cuối ngày, nhắc đặt hàng cho khách..." maxlength="200">
+                </div>
+
+                <button id="btnLive" class="btn-live-big">
+                    <span class="pulse-ring"></span>
+                    <span>PHÁT POPUP NGAY</span>
+                </button>
+
+                <div class="live-meta empty" id="liveMeta">
+                    Chưa có phát sóng nào. Bấm nút trên để gửi popup tới tất cả máy đang online.
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SCHEDULE CARD ============ -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="icon">📅</div>
+                    <div>
+                        <h2>Lịch chạy tự động</h2>
+                        <div class="subtitle">Ngày & khung giờ popup tự phát</div>
+                    </div>
+                </div>
+                <button id="btnSaveSchedule" class="btn btn-primary">
+                    💾 Lưu lịch
+                    <span class="save-indicator" id="scheduleSaved">✓ Đã lưu</span>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="section-label">
+                    <span>Ngày trong tuần</span>
+                    <button class="btn btn-ghost" id="btnAllDays" style="padding: 4px 8px; font-size: 11px;">Chọn tất cả</button>
+                </div>
+                <div class="days-picker" id="daysPicker"></div>
+
+                <div class="section-label">
+                    <span>Khung giờ <span class="hint">(có thể chọn nhiều)</span></span>
+                    <button class="btn btn-ghost" id="btnClearTimes" style="padding: 4px 8px; font-size: 11px;">Xoá hết</button>
+                </div>
+                <div class="time-slots" id="timeSlots"></div>
+
+                <div class="add-time-row">
+                    <input type="time" id="newTime" value="09:00">
+                    <button id="btnAddTime" class="btn btn-secondary">+ Thêm khung giờ</button>
+                </div>
+
+                <div class="presets">
+                    <span class="presets-label">Mẫu nhanh:</span>
+                    <button class="preset-btn" data-time="08:00">08:00</button>
+                    <button class="preset-btn" data-time="09:30">09:30</button>
+                    <button class="preset-btn" data-time="10:30">10:30</button>
+                    <button class="preset-btn" data-time="11:30">11:30</button>
+                    <button class="preset-btn" data-time="13:30">13:30</button>
+                    <button class="preset-btn" data-time="14:30">14:30</button>
+                    <button class="preset-btn" data-time="15:30">15:30</button>
+                    <button class="preset-btn" data-time="16:30">16:30</button>
+                    <button class="preset-btn" data-time="17:00">17:00</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SETTINGS CARD ============ -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="icon">⚙️</div>
+                    <div>
+                        <h2>Cài đặt nâng cao</h2>
+                        <div class="subtitle">Tiêu đề, bù giờ, thời gian đọc</div>
+                    </div>
+                </div>
+                <button id="btnSaveSettings" class="btn btn-primary">
+                    💾 Lưu cài đặt
+                    <span class="save-indicator" id="settingsSaved">✓ Đã lưu</span>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <label class="field-label">Tiêu đề hiển thị trên popup</label>
+                    <textarea id="headerText" rows="3" maxlength="300" placeholder="Tiêu đề popup..."></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div>
+                        <label class="field-label">Bù giờ (phút sau mốc) <span class="hint">0–240</span></label>
+                        <input type="number" id="lateTolerance" min="0" max="240" step="5">
+                    </div>
+                    <div>
+                        <label class="field-label">Đọc tối thiểu (giây) <span class="hint">1–60</span></label>
+                        <input type="number" id="minReadTime" min="1" max="60" step="1">
+                    </div>
+                </div>
+
+                <div class="toggle-row">
+                    <div class="info">
+                        Bật hệ thống popup
+                        <div class="desc">Tắt sẽ ngừng cả popup tự động lẫn LIVE</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="enabledToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ HISTORY CARD ============ -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="icon">📜</div>
+                    <div>
+                        <h2>Nhật ký hoạt động</h2>
+                        <div class="subtitle">20 sự kiện gần nhất</div>
+                    </div>
+                </div>
+                <button id="btnClearHistory" class="btn btn-ghost">🗑️ Xoá nhật ký</button>
+            </div>
+            <div class="card-body">
+                <ul class="history-list" id="historyList">
+                    <li class="empty-state">Đang tải nhật ký...</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Confirm modal -->
+<div class="modal-backdrop" id="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalTitle">Xác nhận</h3>
+        </div>
+        <div class="modal-body" id="modalBody">Bạn có chắc?</div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" id="modalCancel">Huỷ</button>
+            <button class="btn btn-danger" id="modalOk">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ FIREBASE ============ -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+(function () {
+    'use strict';
+
+    // ==================== FIREBASE CONFIG ====================
+    // Dùng chung Firebase TBKH với script popup
+    const FIREBASE_TBKH = {
+        appName: 'tbkhAdminApp',
+        config: {
+            apiKey: "AIzaSyDKNLLhisemYQJeCW8QCOwfbvVsvUur-60",
+            authDomain: "quetbarcode-2361a.firebaseapp.com",
+            databaseURL: "https://quetbarcode-2361a-default-rtdb.firebaseio.com",
+            projectId: "quetbarcode-2361a",
+            storageBucket: "quetbarcode-2361a.firebasestorage.app",
+            messagingSenderId: "209619008657",
+            appId: "1:209619008657:web:ee4af6f6ec567a1d745330"
+        }
+    };
+
+    // Node gốc trên Firebase chứa control
+    const ROOT = 'popupControl';
+
+    // ==================== DEFAULTS ====================
+    const DEFAULT_CONFIG = {
+        days: [0, 1, 2, 3, 4, 5, 6],
+        times: [
+            { hour: 9,  minute: 46 },
+            { hour: 10, minute: 45 },
+            { hour: 11, minute: 40 },
+            { hour: 13, minute: 40 },
+            { hour: 14, minute: 40 },
+            { hour: 15, minute: 40 },
+            { hour: 17, minute: 0  }
+        ],
+        lateToleranceMinutes: 60,
+        minReadTimeSeconds: 8,
+        header: "🔔 Huyền nhắc nhé: Tranh thủ gọi -tiếp xúc khách hàng chưa có đơn phát sinh - ưu tiên nhé bạn!",
+        enabled: true
+    };
+
+    const DAY_NAMES      = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const DAY_NAMES_FULL = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+
+    // ==================== STATE ====================
+    let db = null;
+    let currentConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+    let liveCount = 0;
+
+    // ==================== HELPERS ====================
+    const $ = id => document.getElementById(id);
+
+    function toast(msg, type = 'success', duration = 3000) {
+        const wrap = $('toastWrap');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+        el.innerHTML = `<span class="toast-icon">${icons[type] || ''}</span><span>${escapeHtml(msg)}</span>`;
+        wrap.appendChild(el);
+        setTimeout(() => {
+            el.classList.add('out');
+            setTimeout(() => el.remove(), 250);
+        }, duration);
+    }
+
+    function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function fmtTime(t) { return `${pad2(t.hour)}:${pad2(t.minute)}`; }
+    function parseTime(s) {
+        const [h, m] = s.split(':').map(Number);
+        return { hour: h, minute: m };
+    }
+    function fmtDateTime(ts) {
+        if (!ts) return '—';
+        const d = new Date(ts);
+        return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())} ${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`;
+    }
+
+    function setConnStatus(state, text) {
+        const pill = $('connStatus');
+        pill.className = `status-pill ${state}`;
+        pill.querySelector('.text').textContent = text;
+    }
+
+    function showSavedIndicator(id) {
+        const el = $(id);
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 1800);
+    }
+
+    function confirmModal(title, body, onConfirm, okText = 'Xác nhận', okClass = 'btn-danger') {
+        $('modalTitle').textContent = title;
+        $('modalBody').textContent = body;
+        const okBtn = $('modalOk');
+        okBtn.textContent = okText;
+        okBtn.className = `btn ${okClass}`;
+        $('modal').classList.add('show');
+
+        const cleanup = () => $('modal').classList.remove('show');
+        const handleOk = () => { cleanup(); onConfirm(); };
+        const handleCancel = () => cleanup();
+
+        okBtn.onclick = handleOk;
+        $('modalCancel').onclick = handleCancel;
+        $('modal').onclick = e => { if (e.target.id === 'modal') handleCancel(); };
+    }
+
+    // ==================== UI RENDER ====================
+    function renderDays() {
+        const wrap = $('daysPicker');
+        wrap.innerHTML = '';
+        // Order: T2 T3 T4 T5 T6 T7 CN (Mon..Sun, but day index follows JS getDay: 0=CN..6=T7)
+        const order = [1, 2, 3, 4, 5, 6, 0];
+        order.forEach(idx => {
+            const chip = document.createElement('div');
+            chip.className = 'day-chip' + (currentConfig.days.includes(idx) ? ' active' : '');
+            chip.dataset.day = idx;
+            chip.innerHTML = `
+                <div class="day-num">${DAY_NAMES[idx]}</div>
+                <div class="day-short">${DAY_NAMES_FULL[idx]}</div>
+            `;
+            chip.onclick = () => {
+                const day = Number(chip.dataset.day);
+                const i = currentConfig.days.indexOf(day);
+                if (i >= 0) currentConfig.days.splice(i, 1);
+                else currentConfig.days.push(day);
+                currentConfig.days.sort();
+                renderDays();
+                updateStats();
+            };
+            wrap.appendChild(chip);
+        });
+    }
+
+    function renderTimeSlots() {
+        const wrap = $('timeSlots');
+        wrap.innerHTML = '';
+        const sorted = [...currentConfig.times].sort((a, b) =>
+            (a.hour * 60 + a.minute) - (b.hour * 60 + b.minute)
+        );
+        currentConfig.times = sorted;
+        if (sorted.length === 0) {
+            wrap.classList.add('empty');
+            updateStats();
+            return;
+        }
+        wrap.classList.remove('empty');
+        sorted.forEach((t, i) => {
+            const chip = document.createElement('div');
+            chip.className = 'time-chip';
+            chip.innerHTML = `
+                <span>${fmtTime(t)}</span>
+                <button class="remove" title="Xoá khung giờ này">×</button>
+            `;
+            chip.querySelector('.remove').onclick = () => {
+                currentConfig.times.splice(i, 1);
+                renderTimeSlots();
+            };
+            wrap.appendChild(chip);
+        });
+        updateStats();
+    }
+
+    function renderSettings() {
+        $('headerText').value = currentConfig.header || '';
+        $('lateTolerance').value = currentConfig.lateToleranceMinutes;
+        $('minReadTime').value = currentConfig.minReadTimeSeconds;
+        $('enabledToggle').checked = !!currentConfig.enabled;
+    }
+
+    function updateStats() {
+        $('statDays').textContent = currentConfig.days.length;
+        $('statSlots').textContent = currentConfig.times.length;
+        $('statTolerance').textContent = currentConfig.lateToleranceMinutes;
+    }
+
+    function renderAll() {
+        renderDays();
+        renderTimeSlots();
+        renderSettings();
+        updateStats();
+    }
+
+    // ==================== TIME SLOT ACTIONS ====================
+    function addTimeSlot(timeStr) {
+        if (!timeStr || !/^\d{1,2}:\d{2}$/.test(timeStr)) {
+            toast('Khung giờ không hợp lệ', 'error');
+            return;
+        }
+        const t = parseTime(timeStr);
+        if (t.hour < 0 || t.hour > 23 || t.minute < 0 || t.minute > 59) {
+            toast('Khung giờ không hợp lệ', 'error');
+            return;
+        }
+        // Check duplicate
+        const exists = currentConfig.times.some(x => x.hour === t.hour && x.minute === t.minute);
+        if (exists) {
+            toast(`Khung giờ ${fmtTime(t)} đã tồn tại`, 'warning');
+            return;
+        }
+        currentConfig.times.push(t);
+        renderTimeSlots();
+    }
+
+    // ==================== FIREBASE I/O ====================
+    function initFirebase() {
+        try {
+            const app = firebase.initializeApp(FIREBASE_TBKH.config, FIREBASE_TBKH.appName);
+            db = firebase.database(app);
+            setConnStatus('online', 'Đã kết nối Firebase');
+            return true;
+        } catch (e) {
+            console.error('Firebase init error:', e);
+            setConnStatus('offline', 'Lỗi kết nối');
+            toast('Không kết nối được Firebase: ' + (e.message || e), 'error', 5000);
+            return false;
+        }
+    }
+
+    function loadInitialConfig() {
+        db.ref(`${ROOT}/config`).once('value').then(snap => {
+            const val = snap.val();
+            if (val) {
+                // Merge with defaults to be safe
+                currentConfig = {
+                    days: Array.isArray(val.days) ? val.days : DEFAULT_CONFIG.days,
+                    times: Array.isArray(val.times) ? val.times.filter(t => t && typeof t.hour === 'number') : DEFAULT_CONFIG.times,
+                    lateToleranceMinutes: typeof val.lateToleranceMinutes === 'number' ? val.lateToleranceMinutes : DEFAULT_CONFIG.lateToleranceMinutes,
+                    minReadTimeSeconds: typeof val.minReadTimeSeconds === 'number' ? val.minReadTimeSeconds : DEFAULT_CONFIG.minReadTimeSeconds,
+                    header: typeof val.header === 'string' ? val.header : DEFAULT_CONFIG.header,
+                    enabled: val.enabled !== false
+                };
+                toast('Tải cấu hình từ Firebase thành công', 'success');
+            } else {
+                toast('Chưa có cấu hình — đang dùng mặc định. Bấm Lưu để khởi tạo.', 'info', 4000);
+            }
+            renderAll();
+        }).catch(err => {
+            console.error('Load config error:', err);
+            toast('Lỗi tải cấu hình: ' + err.message, 'error');
+            renderAll();
+        });
+    }
+
+    function subscribeLive() {
+        db.ref(`${ROOT}/liveBroadcast`).on('value', snap => {
+            const v = snap.val();
+            const meta = $('liveMeta');
+            if (!v || !v.id) {
+                meta.className = 'live-meta empty';
+                meta.innerHTML = 'Chưa có phát sóng nào. Bấm nút trên để gửi popup tới tất cả máy đang online.';
+                return;
+            }
+            meta.className = 'live-meta';
+            const noteLine = v.note ? `<br>📝 <em>${escapeHtml(v.note)}</em>` : '';
+            meta.innerHTML = `
+                <strong>📡 Phát sóng gần nhất:</strong> ${fmtDateTime(v.triggeredAt)}
+                ${noteLine}
+                <br>🆔 <code style="font-family:'JetBrains Mono',monospace;font-size:11px;">${escapeHtml(v.id)}</code>
+            `;
+        });
+    }
+
+    function subscribeHistory() {
+        const ref = db.ref(`${ROOT}/history`).orderByChild('timestamp').limitToLast(20);
+        ref.on('value', snap => {
+            const list = $('historyList');
+            const items = [];
+            snap.forEach(child => {
+                items.unshift({ key: child.key, ...child.val() });
+            });
+            if (items.length === 0) {
+                list.innerHTML = '<li class="empty-state">Chưa có hoạt động nào.</li>';
+                return;
+            }
+            // Count live broadcasts
+            liveCount = items.filter(x => x.type === 'live').length;
+            $('statLive').textContent = liveCount;
+
+            list.innerHTML = items.map(it => {
+                const map = {
+                    live:     { icon: '⚡', cls: 'live',     title: 'Phát LIVE' },
+                    config:   { icon: '📅', cls: 'config',   title: 'Cập nhật lịch' },
+                    settings: { icon: '⚙️', cls: 'settings', title: 'Cập nhật cài đặt' }
+                };
+                const m = map[it.type] || { icon: '•', cls: '', title: 'Sự kiện' };
+                const desc = it.description ? `<div class="h-desc">${escapeHtml(it.description)}</div>` : '';
+                return `
+                    <li class="history-item ${m.cls}">
+                        <div class="h-icon">${m.icon}</div>
+                        <div class="h-content">
+                            <div class="h-title">${m.title}</div>
+                            ${desc}
+                        </div>
+                        <div class="h-time">${fmtDateTime(it.timestamp)}</div>
+                    </li>
+                `;
+            }).join('');
+        });
+    }
+
+    function pushHistory(type, description) {
+        db.ref(`${ROOT}/history`).push({
+            type,
+            description: description || '',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).catch(err => console.error('History push error:', err));
+
+        // Background cleanup: giữ tối đa 50 entries
+        db.ref(`${ROOT}/history`).once('value').then(snap => {
+            const all = [];
+            snap.forEach(c => all.push({ key: c.key, ts: c.val().timestamp || 0 }));
+            if (all.length > 50) {
+                all.sort((a, b) => a.ts - b.ts);
+                const toDel = all.slice(0, all.length - 50);
+                toDel.forEach(it => db.ref(`${ROOT}/history/${it.key}`).remove());
+            }
+        }).catch(() => { /* ignore cleanup errors */ });
+    }
+
+    // ==================== SAVE ACTIONS ====================
+    function saveSchedule() {
+        if (currentConfig.days.length === 0) {
+            toast('Phải chọn ít nhất 1 ngày trong tuần', 'warning');
+            return;
+        }
+        if (currentConfig.times.length === 0) {
+            toast('Phải có ít nhất 1 khung giờ', 'warning');
+            return;
+        }
+        const updates = {
+            days: currentConfig.days,
+            times: currentConfig.times,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        db.ref(`${ROOT}/config`).update(updates).then(() => {
+            const dayStr = currentConfig.days.map(d => DAY_NAMES[d]).join(', ');
+            const timeStr = currentConfig.times.map(fmtTime).join(', ');
+            pushHistory('config', `Ngày: ${dayStr} · Giờ: ${timeStr}`);
+            toast('Đã lưu lịch — script sẽ áp dụng ngay', 'success');
+            showSavedIndicator('scheduleSaved');
+        }).catch(err => toast('Lỗi lưu: ' + err.message, 'error'));
+    }
+
+    function saveSettings() {
+        const header = $('headerText').value.trim();
+        const lateTolerance = Number($('lateTolerance').value);
+        const minReadTime = Number($('minReadTime').value);
+        const enabled = $('enabledToggle').checked;
+
+        if (!header) { toast('Tiêu đề popup không được để trống', 'warning'); return; }
+        if (isNaN(lateTolerance) || lateTolerance < 0 || lateTolerance > 240) {
+            toast('Bù giờ phải trong khoảng 0–240 phút', 'warning'); return;
+        }
+        if (isNaN(minReadTime) || minReadTime < 1 || minReadTime > 60) {
+            toast('Thời gian đọc phải trong khoảng 1–60 giây', 'warning'); return;
+        }
+
+        currentConfig.header = header;
+        currentConfig.lateToleranceMinutes = lateTolerance;
+        currentConfig.minReadTimeSeconds = minReadTime;
+        currentConfig.enabled = enabled;
+
+        const updates = {
+            header,
+            lateToleranceMinutes: lateTolerance,
+            minReadTimeSeconds: minReadTime,
+            enabled,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        db.ref(`${ROOT}/config`).update(updates).then(() => {
+            pushHistory('settings', `Bù: ${lateTolerance}p · Đọc tối thiểu: ${minReadTime}s · Trạng thái: ${enabled ? 'BẬT' : 'TẮT'}`);
+            toast('Đã lưu cài đặt — script sẽ áp dụng ngay', 'success');
+            showSavedIndicator('settingsSaved');
+            updateStats();
+        }).catch(err => toast('Lỗi lưu: ' + err.message, 'error'));
+    }
+
+    function broadcastLive() {
+        if (!currentConfig.enabled) {
+            toast('Hệ thống đang TẮT — không thể phát LIVE. Hãy bật trong "Cài đặt".', 'warning', 4500);
+            return;
+        }
+        const note = $('liveNote').value.trim();
+        confirmModal(
+            '⚡ Phát Popup LIVE?',
+            `Popup sẽ hiện ngay lập tức trên TẤT CẢ máy đang mở Sheet. Bạn có chắc?${note ? '\n\nGhi chú: ' + note : ''}`,
+            () => {
+                const id = 'live_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+                const expiresAt = Date.now() + 5 * 60 * 1000; // 5 phút
+                const payload = {
+                    id,
+                    triggeredAt: firebase.database.ServerValue.TIMESTAMP,
+                    expiresAt,
+                    note: note || ''
+                };
+                db.ref(`${ROOT}/liveBroadcast`).set(payload).then(() => {
+                    pushHistory('live', note ? `Ghi chú: ${note}` : 'Phát LIVE không ghi chú');
+                    toast('🔴 Đã phát LIVE — popup sẽ hiện trên các máy trong vài giây', 'success', 4000);
+                    $('liveNote').value = '';
+                }).catch(err => toast('Lỗi phát LIVE: ' + err.message, 'error'));
+            },
+            'Phát ngay',
+            'btn-danger'
+        );
+    }
+
+    function clearHistory() {
+        confirmModal(
+            '🗑️ Xoá nhật ký?',
+            'Toàn bộ lịch sử phát sóng và cập nhật sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác.',
+            () => {
+                db.ref(`${ROOT}/history`).remove().then(() => {
+                    toast('Đã xoá nhật ký', 'success');
+                }).catch(err => toast('Lỗi xoá: ' + err.message, 'error'));
+            },
+            'Xoá',
+            'btn-danger'
+        );
+    }
+
+    // ==================== WIRE EVENTS ====================
+    function wire() {
+        // Add time
+        $('btnAddTime').onclick = () => addTimeSlot($('newTime').value);
+        $('newTime').onkeypress = e => { if (e.key === 'Enter') addTimeSlot($('newTime').value); };
+        // Presets
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.onclick = () => addTimeSlot(btn.dataset.time);
+        });
+        // Clear times
+        $('btnClearTimes').onclick = () => {
+            if (currentConfig.times.length === 0) return;
+            currentConfig.times = [];
+            renderTimeSlots();
+        };
+        // All days
+        $('btnAllDays').onclick = () => {
+            if (currentConfig.days.length === 7) currentConfig.days = [];
+            else currentConfig.days = [0, 1, 2, 3, 4, 5, 6];
+            renderDays();
+            updateStats();
+        };
+        // Save buttons
+        $('btnSaveSchedule').onclick = saveSchedule;
+        $('btnSaveSettings').onclick = saveSettings;
+        // LIVE
+        $('btnLive').onclick = broadcastLive;
+        // Clear history
+        $('btnClearHistory').onclick = clearHistory;
+    }
+
+    // ==================== BOOT ====================
+    function boot() {
+        if (!initFirebase()) return;
+        wire();
+        loadInitialConfig();
+        subscribeLive();
+        subscribeHistory();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
+</script>
+
+</body>
+</html>
