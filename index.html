@@ -1,138 +1,286 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IDECO HUB</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
-      min-height: 100vh;
-      color: white;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#f6f7fb" />
+<title>IDECO HUB</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --ink:#1c2333;
+    --muted:#6b7284;
+    --line:#e7e9f0;
+    --brand:#d92632;
+    --radius:22px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:
+      radial-gradient(700px 320px at 100% -60px, #ffe4e6 0%, transparent 60%),
+      radial-gradient(600px 300px at -80px 0, #e0edff 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:16px 16px 28px}
 
-    .app-card {
-      transition: all 0.3s ease;
-    }
+  /* ===== Header ===== */
+  header{
+    display:flex;align-items:center;gap:14px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:0 8px 24px rgba(28,35,51,.06);
+    margin-bottom:14px;
+  }
+  .logo{
+    width:52px;height:52px;flex:none;border-radius:16px;
+    background:linear-gradient(135deg,#ff4d5a,#d92632);
+    color:#fff;font-size:26px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 16px rgba(217,38,50,.35);
+  }
+  header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.2px}
+  header p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
 
-    .app-card:active {
-      transform: scale(0.95);
-    }
+  /* ===== Search ===== */
+  .search{
+    display:flex;align-items:center;gap:10px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px 14px;
+    margin-bottom:18px;
+    box-shadow:0 4px 14px rgba(28,35,51,.05);
+  }
+  .search svg{flex:none;color:var(--muted)}
+  .search input{
+    border:0;outline:0;background:transparent;
+    font-size:15px;width:100%;color:var(--ink);
+  }
+  .search input::placeholder{color:#9aa1b2}
 
-    .app-card:hover {
-      transform: translateY(-4px);
-    }
-  </style>
+  /* ===== Section titles ===== */
+  .sec{
+    font-size:12px;font-weight:700;letter-spacing:.8px;
+    text-transform:uppercase;color:var(--muted);
+    margin:20px 4px 10px;
+  }
+  .sec:first-of-type{margin-top:4px}
+
+  /* ===== Grid & cards ===== */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 14px;
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+    cursor:pointer;user-select:none;
+    box-shadow:0 4px 14px rgba(28,35,51,.05);
+    transition:transform .15s ease, box-shadow .15s ease;
+    min-height:132px;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(28,35,51,.10)}
+  .card:active{transform:scale(.96)}
+  .icon{
+    width:54px;height:54px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;margin-bottom:10px;color:#fff;
+  }
+  .card h2{margin:0;font-size:13.5px;font-weight:700;line-height:1.3}
+  .card p{margin:5px 0 0;font-size:11.5px;color:var(--muted);line-height:1.4}
+
+  /* Icon colors — mỗi app một màu riêng */
+  .c-blue   {background:linear-gradient(135deg,#4facfe,#2b7de9);box-shadow:0 6px 14px rgba(43,125,233,.35)}
+  .c-pink   {background:linear-gradient(135deg,#ff7eb3,#ec4899);box-shadow:0 6px 14px rgba(236,72,153,.35)}
+  .c-orange {background:linear-gradient(135deg,#ffb347,#f97316);box-shadow:0 6px 14px rgba(249,115,22,.35)}
+  .c-green  {background:linear-gradient(135deg,#5eead4,#10b981);box-shadow:0 6px 14px rgba(16,185,129,.35)}
+  .c-indigo {background:linear-gradient(135deg,#a5b4fc,#6366f1);box-shadow:0 6px 14px rgba(99,102,241,.35)}
+  .c-gold   {background:linear-gradient(135deg,#fde047,#f59e0b);box-shadow:0 6px 14px rgba(245,158,11,.35)}
+  .c-rose   {background:linear-gradient(135deg,#fda4af,#f43f5e);box-shadow:0 6px 14px rgba(244,63,94,.35)}
+  .c-purple {background:linear-gradient(135deg,#d8b4fe,#a855f7);box-shadow:0 6px 14px rgba(168,85,247,.35)}
+  .c-teal   {background:linear-gradient(135deg,#67e8f9,#0891b2);box-shadow:0 6px 14px rgba(8,145,178,.35)}
+  .c-lime   {background:linear-gradient(135deg,#bef264,#65a30d);box-shadow:0 6px 14px rgba(101,163,13,.35)}
+  .c-sky    {background:linear-gradient(135deg,#7dd3fc,#0284c7);box-shadow:0 6px 14px rgba(2,132,199,.35)}
+  .c-red    {background:linear-gradient(135deg,#fca5a5,#dc2626);box-shadow:0 6px 14px rgba(220,38,38,.35)}
+  .c-violet {background:linear-gradient(135deg,#c4b5fd,#7c3aed);box-shadow:0 6px 14px rgba(124,58,237,.35)}
+
+  /* ===== Footer ===== */
+  footer{
+    margin-top:24px;text-align:center;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:14px;
+    box-shadow:0 4px 14px rgba(28,35,51,.05);
+  }
+  footer .t1{font-size:13px;font-weight:600;margin:0}
+  footer .t2{font-size:11.5px;color:var(--muted);margin:4px 0 0}
+
+  .hidden{display:none !important}
+  .no-result{
+    text-align:center;color:var(--muted);font-size:14px;
+    padding:26px 0;display:none;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none}
+  }
+</style>
 </head>
 <body>
+<div class="wrap">
 
-  <div class="max-w-md mx-auto p-4">
+  <header>
+    <div class="logo">I</div>
+    <div>
+      <h1>IDECO HUB</h1>
+      <p>Trung tâm quản lý ứng dụng</p>
+    </div>
+  </header>
 
-    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-5 border border-white/10 shadow-2xl mt-4 mb-6">
-      <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center text-3xl font-bold shadow-lg">
-          I
-        </div>
+  <div class="search">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input id="searchBox" type="search" placeholder="Tìm ứng dụng..." autocomplete="off" />
+  </div>
 
-        <div>
-          <h1 class="text-2xl font-bold">IDECO HUB</h1>
-          <p class="text-slate-300 text-sm">Trung tâm quản lý ứng dụng</p>
-        </div>
-      </div>
+  <!-- ======= QUẢN LÝ & KINH DOANH ======= -->
+  <div class="sec" data-sec>Quản lý &amp; Kinh doanh</div>
+  <div class="grid" data-grid>
+
+    <div class="card" data-name="quan tri ds kh danh sach khach hang" onclick="openApp('https://idecopharma.github.io/quantri-ds-kh/')">
+      <div class="icon c-blue">📋</div>
+      <h2>Quản Trị DS KH</h2>
+      <p>Quản lý danh sách khách hàng</p>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
-
-      <div onclick="openApp('https://idecopharma.github.io/quantri-ds-kh/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer">
-        <div class="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center text-2xl mx-auto mb-3">📋</div>
-        <h2 class="text-sm font-bold text-center">Quản Trị DS KH</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Quản lý danh sách khách hàng</p>
-      </div>
-
-      <div onclick="openApp('https://congtyideco.github.io/infographic/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer">
-        <div class="w-14 h-14 rounded-2xl bg-pink-500 flex items-center justify-center text-2xl mx-auto mb-3">📊</div>
-        <h2 class="text-sm font-bold text-center">Nhắc INFOGRAPHIC</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Infographic IDECO</p>
-      </div>
-
-      <div onclick="openApp('https://congtyideco.github.io/chaychu/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer">
-        <div class="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center text-2xl mx-auto mb-3">🖥️</div>
-        <h2 class="text-sm font-bold text-center">Chạy Chữ LED</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Hiệu ứng chữ LED</p>
-      </div>
-
-      <div onclick="openApp('https://ideconhacviec01.netlify.app/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer">
-        <div class="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center text-2xl mx-auto mb-3">⏰</div>
-        <h2 class="text-sm font-bold text-center">Nhắc Việc</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Quản lý công việc</p>
-      </div>
-
-      <div onclick="openApp('https://congtyideco.github.io/kh-sp/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer">
-        <div class="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center text-2xl mx-auto mb-3">🎤</div>
-        <h2 class="text-sm font-bold text-center">Nhắc SP -Khách hàng</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Sản phẩm không lấy kỳ trước</p>
-      </div>
-
-      <div onclick="openApp('https://duocphamideco.github.io/quantribanggia/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer">
-        <div class="w-14 h-14 rounded-2xl bg-yellow-500 flex items-center justify-center text-2xl mx-auto mb-3">💰</div>
-        <h2 class="text-sm font-bold text-center">Bảng Giá</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Quản lý bảng giá</p>
-      </div>
-
-      <div onclick="openApp('https://congtyideco.github.io/nhacmuctieukd/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Nhắc mục tiêu KD</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Nhắc mục tiêu kinh doanh</p>
-      </div>
- <div onclick="openApp('https://idecovideo01.netlify.app/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Dựng Video-frame</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Dựng - cắt frame video</p>
-      </div>
- <div onclick="openApp('https://duocphamideco.github.io/adminthuong/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Nhắc KPI-Thương</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Nhắc KPI thưởng ps:minhtriet@2026</p>
-      </div>
- <div onclick="openApp('https://triet-studio2.netlify.app/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Tạo kịch bản -nhập API key</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">tạo kịch bản video</p>
-      </div>
- <div onclick="openApp('https://triet-studio3.netlify.app/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Tạo kịch bản03 -nhập API key</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">tạo kịch bản video</p>
-      </div>
-      <div onclick="openApp('https://idecopharma.github.io/thongbaopodcast/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Đăngpodcast-Huyền</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Huyền đăng podcast</p>
-      </div>
-  <div onclick="openApp('https://chuyengiong.netlify.app/')" class="app-card rounded-3xl bg-white/10 p-4 border border-white/10 shadow-xl cursor-pointer col-span-2">
-        <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-2xl mx-auto mb-3">🎧</div>
-        <h2 class="text-sm font-bold text-center">Chuyển Văn bản- giọng nói -tạo prompt info</h2>
-        <p class="text-xs text-slate-400 text-center mt-2">Quản lý văn bản</p>
-      </div>
-
-      
+    <div class="card" data-name="nhac sp khach hang san pham khong lay ky truoc" onclick="openApp('https://congtyideco.github.io/kh-sp/')">
+      <div class="icon c-indigo">🛒</div>
+      <h2>Nhắc SP - Khách hàng</h2>
+      <p>Sản phẩm không lấy kỳ trước</p>
     </div>
 
-    <div class="bg-white/5 rounded-2xl p-4 border border-white/10 text-center mt-6 mb-4">
-      <p class="text-sm text-slate-300">🚀 Hệ thống quản lý ứng dụng IDECO</p>
-      <p class="text-xs text-slate-500 mt-1">Tương thích mobile • Nhanh • Dễ dùng</p>
+    <div class="card" data-name="bang gia quan ly bang gia" onclick="openApp('https://duocphamideco.github.io/quantribanggia/')">
+      <div class="icon c-gold">💰</div>
+      <h2>Bảng Giá</h2>
+      <p>Quản lý bảng giá</p>
+    </div>
+
+    <div class="card" data-name="nhac muc tieu kd kinh doanh" onclick="openApp('https://congtyideco.github.io/nhacmuctieukd/')">
+      <div class="icon c-green">🎯</div>
+      <h2>Nhắc mục tiêu KD</h2>
+      <p>Nhắc mục tiêu kinh doanh</p>
+    </div>
+
+    <div class="card" data-name="nhac kpi thuong minhtriet" onclick="openApp('https://duocphamideco.github.io/adminthuong/')">
+      <div class="icon c-red">🏆</div>
+      <h2>Nhắc KPI - Thưởng</h2>
+      <p>Nhắc KPI thưởng · ps: minhtriet@2026</p>
+    </div>
+
+    <div class="card" data-name="nhac viec quan ly cong viec" onclick="openApp('https://ideconhacviec01.netlify.app/')">
+      <div class="icon c-teal">⏰</div>
+      <h2>Nhắc Việc</h2>
+      <p>Quản lý công việc</p>
     </div>
 
   </div>
 
-  <script>
-    function openApp(url) {
-      window.open(url, '_blank');
-    }
-  </script>
+  <!-- ======= TRUYỀN THÔNG & THÔNG BÁO ======= -->
+  <div class="sec" data-sec>Truyền thông &amp; Thông báo</div>
+  <div class="grid" data-grid>
 
+    <div class="card" data-name="nhac infographic" onclick="openApp('https://congtyideco.github.io/infographic/')">
+      <div class="icon c-pink">📊</div>
+      <h2>Nhắc INFOGRAPHIC</h2>
+      <p>Infographic IDECO</p>
+    </div>
+
+    <div class="card" data-name="chay chu led hieu ung" onclick="openApp('https://congtyideco.github.io/chaychu/')">
+      <div class="icon c-orange">🖥️</div>
+      <h2>Chạy Chữ LED</h2>
+      <p>Hiệu ứng chữ LED</p>
+    </div>
+
+    <div class="card" data-name="dang podcast huyen" onclick="openApp('https://idecopharma.github.io/thongbaopodcast/')">
+      <div class="icon c-rose">🎧</div>
+      <h2>Đăng Podcast - Huyền</h2>
+      <p>Huyền đăng podcast</p>
+    </div>
+
+    <div class="card" data-name="chuyen van ban giong noi tao prompt info" onclick="openApp('https://chuyengiong.netlify.app/')">
+      <div class="icon c-sky">🎤</div>
+      <h2>Văn bản ↔ Giọng nói</h2>
+      <p>Chuyển văn bản, tạo prompt info</p>
+    </div>
+
+  </div>
+
+  <!-- ======= SÁNG TẠO & VIDEO ======= -->
+  <div class="sec" data-sec>Sáng tạo &amp; Video</div>
+  <div class="grid" data-grid>
+
+    <div class="card" data-name="dung video frame cat" onclick="openApp('https://idecovideo01.netlify.app/')">
+      <div class="icon c-purple">🎬</div>
+      <h2>Dựng Video - Frame</h2>
+      <p>Dựng · cắt frame video</p>
+    </div>
+
+    <div class="card" data-name="tao kich ban video api key studio 2" onclick="openApp('https://triet-studio2.netlify.app/')">
+      <div class="icon c-violet">✍️</div>
+      <h2>Tạo kịch bản</h2>
+      <p>Kịch bản video · nhập API key</p>
+    </div>
+
+    <div class="card" data-name="tao kich ban 03 video api key studio 3" onclick="openApp('https://triet-studio3.netlify.app/')">
+      <div class="icon c-lime">📝</div>
+      <h2>Tạo kịch bản 03</h2>
+      <p>Kịch bản video · nhập API key</p>
+    </div>
+
+  </div>
+
+  <p class="no-result" id="noResult">Không tìm thấy ứng dụng phù hợp</p>
+
+  <footer>
+    <p class="t1">🚀 Hệ thống quản lý ứng dụng IDECO</p>
+    <p class="t2">Tương thích mobile · Nhanh · Dễ dùng</p>
+  </footer>
+
+</div>
+
+<script>
+  function openApp(url){ window.open(url, '_blank'); }
+
+  // Tìm kiếm nhanh (không dấu)
+  const strip = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+  const box = document.getElementById('searchBox');
+  const cards = [...document.querySelectorAll('.card')];
+  const secs  = [...document.querySelectorAll('[data-sec]')];
+  const grids = [...document.querySelectorAll('[data-grid]')];
+  const noResult = document.getElementById('noResult');
+
+  box.addEventListener('input', () => {
+    const q = strip(box.value.trim());
+    let total = 0;
+    cards.forEach(c => {
+      const text = strip(c.textContent) + ' ' + (c.dataset.name || '');
+      const show = !q || text.includes(q);
+      c.classList.toggle('hidden', !show);
+      if (show) total++;
+    });
+    grids.forEach((g, i) => {
+      const any = [...g.querySelectorAll('.card')].some(c => !c.classList.contains('hidden'));
+      g.classList.toggle('hidden', !any);
+      secs[i].classList.toggle('hidden', !any);
+    });
+    noResult.style.display = total ? 'none' : 'block';
+  });
+</script>
 </body>
 </html>
