@@ -1,0 +1,11 @@
+IDECO HUB | Quản lý ứng dụng — PWA Android và iPhone
+
+1. Giải nén và tải toàn bộ file, thư mục lên cùng vị trí GitHub Pages (HTTPS).
+2. Nếu HTML có CSS, JavaScript hoặc ảnh rời, đưa lên thêm đúng cấu trúc gốc.
+3. Mở trang cai-dat.html từ URL HTTPS của app để kiểm tra manifest và logo.
+4. Bấm Mở ứng dụng. Chỉ cài khi trang nội dung chính đã mở được.
+   Android dùng menu ⋮ của Chrome > Cài đặt ứng dụng hoặc Thêm vào màn hình chính.
+5. iPhone: bấm Mở ứng dụng, rồi Safari > Chia sẻ > Thêm vào màn hình chính > Thêm.
+Nếu biểu tượng cũ vẫn hiện, kiểm tra dữ liệu lưu trên máy trước khi gỡ rồi cài lại.
+Mở từ địa chỉ website HTTPS. Nếu biểu tượng cũ lỗi, dùng website để thử lại trước khi cài mới.
+Mỗi app dùng một URL thư mục riêng. Biểu tượng mở nội dung chính từ index.html.
